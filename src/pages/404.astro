@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found">
+  <section class="section container">
+    <div class="lost">
+      <p class="eyebrow">404</p>
+      <h1>This page wandered off.</h1>
+      <p class="lead">It may have moved, or the link has a typo.</p>
+      <div class="actions">
+        <a class="button button-primary" href="/">Home</a>
+        <a class="button button-ghost" href="/addons/">All addons</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    gap: 18px;
+    justify-items: start;
+    max-width: 640px;
+  }
+</style>

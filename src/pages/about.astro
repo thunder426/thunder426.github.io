@@ -1,0 +1,124 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+
+const practices = [
+  {
+    title: 'Data the game doesn\'t give you',
+    body: 'The game only knows the items it has already seen, so Forever Leveling BiS carries its own database of over 3,500 items. A Python scraper builds it from Wowhead\'s WoW: Forever database, then checks it against the game client\'s own data tables and scans run in game.',
+  },
+  {
+    title: 'Plans with a proof behind them',
+    body: 'Waylaid Auction Helper charges each unit at its real listing price, picks the mix of crates with a knapsack search, and plans again with real listings until no other plan can be cheaper. A test checks it against brute force on 3,000 random markets.',
+  },
+  {
+    title: 'Tested outside the game',
+    body: 'Each addon runs headless in Python, with the WoW API stubbed out, so its logic and windows are tested without launching the game.',
+  },
+  {
+    title: 'Released by CI',
+    body: 'Pushing a version tag runs a GitHub Actions workflow that packages the addon and uploads it to CurseForge, so every release is built the same way.',
+  },
+  {
+    title: 'Three languages',
+    body: 'Every addon ships in English, Simplified Chinese and Traditional Chinese, using the game\'s own names for things.',
+  },
+  {
+    title: 'A small, quiet site',
+    body: 'This site is static HTML with a strict Content Security Policy. No cookies, no analytics and no third-party scripts.',
+  },
+];
+---
+
+<Base title="About" description={`About ${site.name}, the developer behind Forever Leveling BiS, Waylaid Auction Helper and Let Me Buff You.`}>
+  <section class="section container">
+    <div class="intro">
+      <p class="eyebrow">About</p>
+      <h1>Hi, I'm {site.name}.</h1>
+      <p class="lead">
+        I've been a software developer for about 15 years, most of it in security and identity and access management:
+        the systems that decide who can sign in and what they're allowed to do. Addons for WoW: Forever are what I
+        build in my spare time, for the game I play.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight container" aria-labelledby="how">
+    <div class="section-head">
+      <h2 id="how">How I build them</h2>
+    </div>
+    <ul class="practices">
+      {
+        practices.map((p) => (
+          <li class="card">
+            <h3>{p.title}</h3>
+            <p class="muted">{p.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="section container">
+    <div class="contact card">
+      <div>
+        <h2>Get in touch</h2>
+        <p class="muted">
+          Bug reports and ideas are best left as a comment on the addon's CurseForge page.
+        </p>
+      </div>
+      <div class="actions">
+        <a class="button button-primary" href={site.curseforgeProfile}>My CurseForge projects <Icon name="external" /></a>
+        <a class="button button-ghost" href="/support/">Support my work</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    display: grid;
+    gap: 18px;
+    max-width: 760px;
+  }
+
+  .section-tight {
+    padding-bottom: 8px;
+  }
+
+  .practices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .practices li {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 26px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .contact {
+    display: grid;
+    gap: 22px 40px;
+    align-items: center;
+    padding: clamp(24px, 4vw, 40px);
+  }
+
+  .contact > div:first-child {
+    display: grid;
+    gap: 10px;
+  }
+
+  @media (min-width: 900px) {
+    .contact {
+      grid-template-columns: 1fr auto;
+    }
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import AddonCard from '../../components/AddonCard.astro';
+import { addons } from '../../data/addons';
+---
+
+<Base title="Addons" description="Every Timearc addon for World of Warcraft: Forever.">
+  <section class="section container">
+    <div class="section-head">
+      <p class="eyebrow">The addons</p>
+      <h1>Addons for WoW: Forever</h1>
+      <p class="lead">All free on CurseForge, in English, Simplified Chinese and Traditional Chinese.</p>
+    </div>
+    <div class="grid">
+      {addons.map((addon) => <AddonCard addon={addon} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+  }
+</style>

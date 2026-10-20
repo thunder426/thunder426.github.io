@@ -1,0 +1,25 @@
+---
+interface Props {
+  name: 'external' | 'arrow' | 'coffee' | 'zoom';
+}
+const { name } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  {name === 'external' && <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />}
+  {name === 'arrow' && <path d="M5 12h14M13 6l6 6-6 6" />}
+  {
+    name === 'coffee' && (
+      <path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9ZM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M12 3v3" />
+    )
+  }
+  {name === 'zoom' && <path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM20 20l-4-4M11 8v6M8 11h6" />}
+</svg>

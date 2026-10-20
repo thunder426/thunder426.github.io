@@ -1,0 +1,249 @@
+---
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import Mark from '../components/Mark.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  // Preview image for link unfurls (Discord, CurseForge comments, Buy Me a Coffee).
+  image?: ImageMetadata;
+  imageAlt?: string;
+  // Addon slug: switches --accent to that addon's color.
+  addon?: string;
+}
+
+const { title, description = site.description, image, imageAlt, addon } = Astro.props;
+
+const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · WoW: Forever addons`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const preview = image
+  ? await getImage({ src: image, width: Math.min(1200, image.width), format: 'jpg', quality: 82 })
+  : undefined;
+const previewUrl = preview ? new URL(preview.src, Astro.site).href : undefined;
+
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/#addons', label: 'Addons', current: path.startsWith('/addons') },
+  { href: '/about/', label: 'About', current: path.startsWith('/about') },
+  { href: '/support/', label: 'Support', current: path.startsWith('/support') },
+];
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0e0c0a" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="author" content={site.name} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title ?? site.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {previewUrl && <meta property="og:image" content={previewUrl} />}
+    {previewUrl && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+    <meta name="twitter:card" content={previewUrl ? 'summary_large_image' : 'summary'} />
+  </head>
+  <body data-addon={addon}>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="/" aria-label={`${site.name}, home`}>
+          <Mark class="brand-mark" />
+          <span>{site.name}</span>
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={item.current ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="/">
+            <Mark class="brand-mark" size={24} />
+            <span>{site.name}</span>
+          </a>
+          <p class="muted">Free addons for World of Warcraft: Forever.</p>
+        </div>
+        <ul class="footer-links">
+          <li><a href={site.curseforgeProfile}>All addons on CurseForge</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/support/">Support</a></li>
+        </ul>
+        <p class="legal">
+          © {year} {site.name}. World of Warcraft and Blizzard Entertainment are trademarks or registered trademarks of
+          Blizzard Entertainment, Inc. These addons are not made by, affiliated with or endorsed by Blizzard.
+          <br />This site uses no cookies, analytics or third-party scripts.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: -60px;
+    z-index: 10;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .skip:focus {
+    top: 12px;
+  }
+
+  .site-header {
+    border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+  }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+  }
+
+  .brand :global(.brand-mark) {
+    color: var(--brand);
+  }
+
+  nav ul {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 0.96rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  @media (max-width: 420px) {
+    .brand span {
+      font-size: 1.15rem;
+    }
+    nav a {
+      padding: 8px 9px;
+      font-size: 0.92rem;
+    }
+  }
+
+  .site-footer {
+    margin-top: 40px;
+    border-top: 1px solid var(--line-soft);
+    padding-block: 40px 48px;
+    font-size: 0.94rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 720px) {
+    .footer-grid {
+      grid-template-columns: 1fr auto;
+    }
+    .legal {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: 6px;
+  }
+
+  .footer-brand .brand {
+    font-size: 1.1rem;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+
+  .legal {
+    color: var(--text-faint);
+    font-size: 0.84rem;
+    max-width: 80ch;
+  }
+</style>

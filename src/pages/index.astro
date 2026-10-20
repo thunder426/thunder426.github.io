@@ -1,0 +1,237 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import AddonCard from '../components/AddonCard.astro';
+import Icon from '../components/Icon.astro';
+import { addons, languages } from '../data/addons';
+import { site } from '../data/site';
+
+const [first] = addons;
+---
+
+<Base image={first.hero.src} imageAlt={first.hero.alt}>
+  <section class="hero container">
+    <div class="hero-text">
+      <p class="eyebrow">WoW: Forever addons</p>
+      <h1>Addons that do the math while you play.</h1>
+      <p class="lead">
+        I'm {site.name}. I make free addons for World of Warcraft: Forever: the best gear for your level, the cheapest
+        way to earn Merchant's Favor, and one key to buff the strangers you pass.
+      </p>
+      <div class="actions">
+        <a class="button button-primary" href="#addons">See the addons <Icon name="arrow" /></a>
+        <a class="button button-ghost" href="/support/">Support my work</a>
+      </div>
+      <dl class="stats">
+        <div>
+          <dt>Addons</dt>
+          <dd>{addons.length}</dd>
+        </div>
+        <div>
+          <dt>Downloads on CurseForge</dt>
+          <dd>{site.downloads}</dd>
+        </div>
+        <div>
+          <dt>Languages</dt>
+          <dd class="langs">{languages.join(' · ')}</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      {
+        addons.map((addon, i) => (
+          <div class={`art art-${i}`} data-addon={addon.slug}>
+            <Image src={addon.logo} alt="" width={220} height={220} densities={[1, 2]} loading="eager" />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section id="addons" class="section container">
+    <div class="section-head">
+      <p class="eyebrow">The addons</p>
+      <h2>Free on CurseForge</h2>
+      <p class="muted">
+        Install them with the CurseForge app, or download the zip and unpack it into your AddOns folder. Each one
+        follows your game client's language.
+      </p>
+    </div>
+    <div class="grid">
+      {addons.map((addon) => <AddonCard addon={addon} />)}
+    </div>
+  </section>
+
+  <section class="section about-section container">
+    <div class="about card">
+      <div>
+        <p class="eyebrow">Who makes these</p>
+        <h2>Built by a developer who works in security</h2>
+      </div>
+      <div class="about-text">
+        <p class="muted">
+          My day job is software: about 15 years of it, mostly in security and identity and access management. The
+          addons get the same habits: data checked against the game client, an optimizer tested against brute force,
+          and tests that run each addon outside the game.
+        </p>
+        <a class="button button-ghost" href="/about/">How I build them <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 40px;
+    align-items: center;
+    padding-block: clamp(40px, 8vw, 96px) clamp(24px, 4vw, 48px);
+  }
+
+  @media (min-width: 900px) {
+    .hero {
+      grid-template-columns: 1.25fr 1fr;
+    }
+  }
+
+  .hero-text {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .stats {
+    justify-self: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 36px;
+    margin: 10px 0 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .stats div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .stats dt {
+    order: 2;
+    color: var(--text-faint);
+    font-size: 0.84rem;
+  }
+
+  .stats dd {
+    order: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .stats .langs {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    padding-block: 0.3rem;
+  }
+
+  /* The three logos in a loose triangle on wide screens, a row on narrow ones. */
+  .hero-art {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    aspect-ratio: 1.1;
+    justify-self: center;
+  }
+
+  .art {
+    position: absolute;
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 28px;
+    background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 68%);
+  }
+
+  @media (max-width: 899px) {
+    .hero-art {
+      order: -1;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      max-width: 360px;
+      aspect-ratio: auto;
+    }
+
+    .hero-art .art {
+      position: static;
+      width: 31%;
+      transform: none;
+    }
+  }
+
+  .art img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.55));
+  }
+
+  /* Waylaid's logo is a square tile; round its corners to sit with the other two. */
+  .art[data-addon='waylaid-auction-helper'] img {
+    border-radius: 24px;
+  }
+
+  .art-0 {
+    left: 0;
+    top: 0;
+    transform: rotate(-5deg);
+  }
+
+  .art-1 {
+    right: 0;
+    top: 9%;
+    width: 42%;
+    transform: rotate(5deg);
+  }
+
+  .art-2 {
+    left: 28%;
+    bottom: 0;
+    width: 44%;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+  }
+
+  .about-section {
+    padding-top: 0;
+  }
+
+  .about {
+    display: grid;
+    gap: 20px 48px;
+    padding: clamp(24px, 4vw, 44px);
+  }
+
+  .about > div:first-child {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  @media (min-width: 900px) {
+    .about {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+
+  .about-text {
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+  }
+</style>

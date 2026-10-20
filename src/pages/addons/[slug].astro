@@ -1,0 +1,449 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Gallery from '../../components/Gallery.astro';
+import Icon from '../../components/Icon.astro';
+import { addons, languages, type Addon } from '../../data/addons';
+import { releases } from '../../lib/changelog';
+import { inline } from '../../lib/markdown';
+import { widthsFor } from '../../lib/images';
+
+export const getStaticPaths = (() =>
+  addons.map((addon) => ({ params: { slug: addon.slug }, props: { addon } }))) satisfies GetStaticPaths;
+
+interface Props {
+  addon: Addon;
+}
+const { addon } = Astro.props;
+
+const [latest, ...older] = releases(addon.slug);
+const earlier = older.slice(0, 2);
+const others = addons.filter((a) => a.slug !== addon.slug);
+---
+
+<Base
+  title={addon.name}
+  description={`${addon.tagline} ${addon.summary}`}
+  image={addon.hero.src}
+  imageAlt={addon.hero.alt}
+  addon={addon.slug}
+>
+  <article>
+    <header class="intro container">
+      <a class="back" href="/#addons">← All addons</a>
+      <div class="intro-grid">
+        <div class="logo">
+          <Image src={addon.logo} alt={`${addon.name} logo`} width={200} height={200} densities={[1, 2]} loading="eager" />
+        </div>
+        <div class="intro-text">
+          <p class="eyebrow">WoW: Forever addon</p>
+          <h1>{addon.name}</h1>
+          <p class="lead">{addon.tagline}</p>
+          <ul class="chips">
+            <li class="chip chip-accent">v{latest.version}</li>
+            <li class="chip"><code>{addon.command}</code></li>
+            {languages.map((lang) => <li class="chip">{lang}</li>)}
+          </ul>
+          <div class="actions">
+            <a class="button button-primary" href={addon.curseforge}>Get it on CurseForge <Icon name="external" /></a>
+            <a class="button button-ghost" href="#start">Getting started</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <figure class="hero-shot">
+        <Image
+          src={addon.hero.src}
+          alt={addon.hero.alt}
+          widths={widthsFor(addon.hero.src, [640, 960, 1280, 1600])}
+          sizes="(min-width: 1184px) 1120px, calc(100vw - 32px)"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      <p class="summary">{addon.summary}</p>
+    </div>
+
+    <section class="section container" aria-labelledby="features">
+      <h2 id="features" class="visually-hidden">Features</h2>
+      <div class="features">
+        {
+          addon.features.map((group) => (
+            <div class="feature card">
+              <h3>{group.title}</h3>
+              <ul class="ticks">
+                {group.items.map((item) => (
+                  <li set:html={inline(item)} />
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      addon.gallery.length > 0 && (
+        <section class="section section-tight container" aria-labelledby="screenshots">
+          <div class="section-head">
+            <h2 id="screenshots">Screenshots</h2>
+          </div>
+          <Gallery id={addon.slug} shots={addon.gallery} />
+        </section>
+      )
+    }
+
+    <section class="section section-tight container" aria-labelledby="start">
+      <div class="two-col">
+        <div class="card panel">
+          <h2 id="start">Getting started</h2>
+          <ol class="steps">
+            {addon.gettingStarted.map((step) => <li set:html={inline(step)} />)}
+          </ol>
+        </div>
+        <div class="card panel">
+          <h2>Good to know</h2>
+          <ul class="ticks">
+            {addon.notes.map((note) => <li set:html={inline(note)} />)}
+          </ul>
+          <p class="beta">
+            WoW: Forever is in beta, and so is this addon. <span set:html={inline(addon.feedback)} />
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight container" aria-labelledby="changes">
+      <div class="section-head">
+        <h2 id="changes">What's new in {latest.version}</h2>
+      </div>
+      <div class="changelog card">
+        <div class="notes" set:html={latest.html} />
+        {
+          earlier.map((release) => (
+            <details>
+              <summary>{release.version}</summary>
+              <div class="notes" set:html={release.html} />
+            </details>
+          ))
+        }
+        <p class="all-versions">
+          <a href={`${addon.curseforge}/files`}>Every version on CurseForge <Icon name="external" /></a>
+        </p>
+      </div>
+      {addon.credit && <p class="credit">{addon.credit}</p>}
+    </section>
+
+    <section class="section section-tight container" aria-labelledby="more">
+      <h2 id="more" class="more-title">More addons</h2>
+      <ul class="more">
+        {
+          others.map((other) => (
+            <li data-addon={other.slug}>
+              <a href={`/addons/${other.slug}/`}>
+                <Image src={other.logo} alt="" width={56} height={56} densities={[1, 2]} />
+                <span>
+                  <strong>{other.name}</strong>
+                  <span class="muted">{other.tagline}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .intro {
+    padding-block: 28px 36px;
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 28px;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+
+  .intro-grid {
+    display: grid;
+    gap: 24px 40px;
+    align-items: center;
+  }
+
+  @media (min-width: 760px) {
+    .intro-grid {
+      grid-template-columns: 200px 1fr;
+    }
+  }
+
+  .logo {
+    width: 160px;
+    height: 160px;
+    border-radius: 28px;
+    background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%);
+  }
+
+  @media (min-width: 760px) {
+    .logo {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+  .logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 28px;
+    filter: drop-shadow(0 16px 28px rgb(0 0 0 / 0.5));
+  }
+
+  .intro-text {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+  }
+
+  .intro-text .chips code {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+  }
+
+  .hero-shot {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 30px 80px -30px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .hero-shot img {
+    width: 100%;
+  }
+
+  .summary {
+    margin-top: 28px;
+    max-width: 70ch;
+    font-size: 1.12rem;
+    color: var(--text-muted);
+  }
+
+  .section-tight {
+    padding-block: 0 clamp(48px, 6vw, 72px);
+  }
+
+  /* Two balanced columns, so three or four groups never leave one stranded on its own row. */
+  .features {
+    columns: 2 340px;
+    column-gap: 20px;
+  }
+
+  .feature {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: 26px;
+    margin-bottom: 20px;
+    break-inside: avoid;
+  }
+
+  .feature h3 {
+    color: var(--accent);
+  }
+
+  .two-col {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 900px) {
+    .two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .panel {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+    padding: clamp(22px, 3vw, 32px);
+  }
+
+  .panel h2 {
+    font-size: 1.5rem;
+  }
+
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 42px;
+    color: var(--text-muted);
+  }
+
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .beta {
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+    color: var(--text-muted);
+    font-size: 0.96rem;
+  }
+
+  .changelog {
+    padding: clamp(22px, 3vw, 32px);
+    display: grid;
+    gap: 14px;
+  }
+
+  .notes {
+    color: var(--text-muted);
+    max-width: 80ch;
+  }
+
+  .notes :global(ul) {
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .notes :global(ul ul) {
+    margin-top: 8px;
+  }
+
+  .notes :global(li::marker) {
+    color: var(--accent);
+  }
+
+  .notes :global(p + ul),
+  .notes :global(p + p) {
+    margin-top: 10px;
+  }
+
+  details {
+    border-top: 1px solid var(--line-soft);
+    padding-top: 14px;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+    width: fit-content;
+  }
+
+  summary:hover {
+    color: var(--accent);
+  }
+
+  details[open] summary {
+    margin-bottom: 12px;
+  }
+
+  .all-versions {
+    border-top: 1px solid var(--line-soft);
+    padding-top: 14px;
+    font-size: 0.96rem;
+  }
+
+  .all-versions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .all-versions :global(svg) {
+    width: 15px;
+    height: 15px;
+  }
+
+  .credit {
+    margin-top: 14px;
+    color: var(--text-faint);
+    font-size: 0.9rem;
+  }
+
+  .more-title {
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+
+  .more {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .more a {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 18px;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .more a:hover {
+    border-color: var(--accent);
+  }
+
+  .more img {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+
+  .more a > span {
+    display: grid;
+    gap: 2px;
+  }
+
+  .more .muted {
+    font-size: 0.92rem;
+  }
+</style>
